@@ -28,6 +28,7 @@ export function SignUp() {
   })
 
   function handleSignUp(data: SignUpForm) {
+    console.log('🚀 ~ file: sign-up.tsx:31 ~ handleSignUp ~ data:', data)
     toast.success('Restaurante cadastrado com sucesso', {
       action: {
         label: 'Login',
