@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { registerRestaurant } from '@/api/register-restaurant'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,7 +29,7 @@ export function SignUp() {
   })
 
   function handleSignUp(data: SignUpForm) {
-    console.log('🚀 ~ file: sign-up.tsx:31 ~ handleSignUp ~ data:', data)
+    registerRestaurant(data)
     toast.success('Restaurante cadastrado com sucesso', {
       action: {
         label: 'Login',

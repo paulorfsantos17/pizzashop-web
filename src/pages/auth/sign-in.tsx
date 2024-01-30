@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { signIn } from '@/api/sign-in'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,6 +24,8 @@ export function SignIn() {
   })
 
   function handleSignIn(data: SignInForm) {
+    signIn(data)
+
     toast.success('Enviamos um link de authentificação para seu e-mail', {
       action: {
         label: 'Reenviar',
