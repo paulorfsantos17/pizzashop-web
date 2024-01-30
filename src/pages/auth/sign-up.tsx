@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
@@ -28,14 +29,22 @@ export function SignUp() {
     resolver: zodResolver(signUpForm),
   })
 
-  function handleSignUp(data: SignUpForm) {
-    registerRestaurant(data)
-    toast.success('Restaurante cadastrado com sucesso', {
-      action: {
-        label: 'Login',
-        onClick: () => navigate('/sign-in'),
-      },
-    })
+  const { mutateAsync: registerRestaurantFn } = useMutation({
+    mutationFn: registerRestaurant,
+  })
+
+  async function handleSignUp(data: SignUpForm) {
+    try {
+      await registerRestaurantFn(data)
+      toast.success('Restaurante cadastrado com sucesso', {
+        action: {
+          label: 'Login',
+          onClick: () => navigate('/sign-in'),
+        },
+      })
+    } catch {
+      toast.error('Erro ao cadastrar restaurante.')
+    }
   }
 
   return (

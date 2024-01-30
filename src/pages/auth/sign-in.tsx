@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
@@ -23,15 +24,22 @@ export function SignIn() {
     resolver: zodResolver(signInForm),
   })
 
-  function handleSignIn(data: SignInForm) {
-    signIn(data)
+  const { mutateAsync: authenticate } = useMutation({
+    mutationFn: signIn,
+  })
 
-    toast.success('Enviamos um link de authentificação para seu e-mail', {
-      action: {
-        label: 'Reenviar',
-        onClick: () => handleSignIn(data),
-      },
-    })
+  async function handleSignIn(data: SignInForm) {
+    try {
+      await authenticate({ email: data.email })
+      toast.success('Enviamos um link de authentificação para seu e-mail', {
+        action: {
+          label: 'Reenviar',
+          onClick: () => handleSignIn(data),
+        },
+      })
+    } catch (error) {
+      toast.error('Credencias inválidas.')
+    }
   }
 
   return (
