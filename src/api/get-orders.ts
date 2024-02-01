@@ -14,10 +14,25 @@ export interface IGetOrdersResponse {
   }
 }
 
-export async function getOrders() {
+export interface IGetOrdersQuery {
+  pageIndex?: number | null
+  orderId?: string | null
+  customerName?: string | null
+  status?: string | null
+}
+
+export async function getOrders({
+  pageIndex,
+  customerName,
+  orderId,
+  status,
+}: IGetOrdersQuery) {
   const response = await api.get<IGetOrdersResponse>('/orders', {
     params: {
-      pageIndex: 0,
+      pageIndex,
+      customerName,
+      orderId,
+      status,
     },
   })
 
