@@ -1,9 +1,12 @@
 import { DialogTrigger } from '@radix-ui/react-dialog'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Building, ChevronDown, LogOut } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { getManagerRestaurant } from '@/api/get-manager-restutant'
 import { getProfile } from '@/api/get-profile'
+import { signOut } from '@/api/sign-out'
 
 import { StoreProfileDialog } from './store-profile-dialog'
 import { Button } from './ui/button'
@@ -19,6 +22,10 @@ import {
 import { Skeleton } from './ui/skeleton'
 
 export function AccountMenu() {
+  const navigate = useNavigate()
+
+  const [openDialog, setOpenDialog] = useState<boolean>(false)
+
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryFn: getProfile,
     queryKey: ['profile'],
@@ -28,10 +35,22 @@ export function AccountMenu() {
     useQuery({
       queryFn: getManagerRestaurant,
       queryKey: ['manager-restaurant'],
+      staleTime: Infinity,
     })
 
+  function changeOpenDialog(stateDialog: boolean) {
+    setOpenDialog(stateDialog)
+  }
+
+  const { mutateAsync: signOutFn, isPending: isSigningOut } = useMutation({
+    mutationFn: signOut,
+    onSuccess() {
+      navigate('/sign-in', { replace: true })
+    },
+  })
+
   return (
-    <Dialog>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -69,14 +88,20 @@ export function AccountMenu() {
               <span>Perfil da loja</span>
             </DropdownMenuItem>
           </DialogTrigger>
-          <DropdownMenuItem className="text-rose-500 dark:text-rose-400">
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Sair</span>
+          <DropdownMenuItem
+            asChild
+            disabled={isSigningOut}
+            className="text-rose-500 dark:text-rose-400"
+          >
+            <button className="w-full" onClick={() => signOutFn()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sair</span>
+            </button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <StoreProfileDialog />
+      <StoreProfileDialog changeOpenDialog={changeOpenDialog} />
     </Dialog>
   )
 }

@@ -1,12 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { getManagerRestaurant } from '@/api/get-manager-restutant'
+import { updateProfile } from '@/api/update-profile'
 
 import { Button } from './ui/button'
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -19,23 +22,86 @@ import { Textarea } from './ui/textarea'
 
 const storeProfileSchema = z.object({
   name: z.string().min(1),
-  description: z.string(),
+  description: z.string().nullable(),
 })
-type IStoreProdileSchema = z.infer<typeof storeProfileSchema>
+type IStoreProfileSchema = z.infer<typeof storeProfileSchema>
 
-export function StoreProfileDialog() {
+interface IStoreProfileDialogProps {
+  changeOpenDialog: (stateChange: boolean) => void
+}
+
+export function StoreProfileDialog({
+  changeOpenDialog,
+}: IStoreProfileDialogProps) {
+  const queryClient = useQueryClient()
+
   const { data: managerRestaurant } = useQuery({
     queryFn: getManagerRestaurant,
     queryKey: ['manager-restaurant'],
+    staleTime: Infinity,
   })
 
-  const { register, handleSubmit } = useForm<IStoreProdileSchema>({
+  const {
+    register,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm<IStoreProfileSchema>({
     resolver: zodResolver(storeProfileSchema),
     values: {
       name: managerRestaurant?.name ?? '',
       description: managerRestaurant?.description ?? '',
     },
   })
+
+  function updateManagerRestaurantCache({
+    name,
+    description,
+  }: IStoreProfileSchema) {
+    const cached = queryClient.getQueryData<IStoreProfileSchema>([
+      'manager-restaurant',
+    ])
+
+    if (cached) {
+      queryClient.setQueryData<IStoreProfileSchema>(['manager-restaurant'], {
+        ...cached,
+        name,
+        description,
+      })
+    }
+
+    changeOpenDialog(false)
+
+    return { cached }
+  }
+
+  const { mutateAsync: updateProfileFn } = useMutation({
+    mutationFn: updateProfile,
+    onMutate({ name, description }) {
+      const { cached } = updateManagerRestaurantCache({
+        name,
+        description,
+      })
+
+      return { previousProfile: cached }
+    },
+    onError(_error, _variables, context) {
+      if (context?.previousProfile) {
+        updateManagerRestaurantCache(context.previousProfile)
+      }
+    },
+  })
+
+  async function handleUpdateProfile(data: IStoreProfileSchema) {
+    try {
+      await updateProfileFn({
+        name: data.name,
+        description: data.description,
+      })
+      toast.success('Perfil atualizado com sucesso.')
+    } catch {
+      toast.error('Falha ao atualizar o perfil, tente novamente.')
+    }
+  }
 
   return (
     <DialogContent>
@@ -45,7 +111,7 @@ export function StoreProfileDialog() {
           Atualize as informações do seu estabelecimento visíveis ao seu cliente
         </DialogDescription>
       </DialogHeader>
-      <form>
+      <form onSubmit={handleSubmit(handleUpdateProfile)}>
         <div className="space-y-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right" htmlFor="name">
@@ -54,21 +120,23 @@ export function StoreProfileDialog() {
             <Input className="col-span-3" id="name" {...register('name')} />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label
-              className="text-right"
-              htmlFor="description"
-              {...register('description')}
-            >
+            <Label className="text-right" htmlFor="description">
               Descrição
             </Label>
-            <Textarea className="col-span-3" id="description" />
+            <Textarea
+              className="col-span-3"
+              id="description"
+              {...register('description')}
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" type="button">
-            Cancelar
-          </Button>
-          <Button type="submit" variant="success">
+          <DialogClose asChild>
+            <Button variant="ghost" type="button">
+              Cancelar
+            </Button>
+          </DialogClose>
+          <Button type="submit" variant="success" disabled={isSubmitting}>
             Salvar
           </Button>
         </DialogFooter>
