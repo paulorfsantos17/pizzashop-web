@@ -1,8 +1,11 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowRight, Search, X } from 'lucide-react'
 import { useState } from 'react'
 
+import { cancelOrder } from '@/api/cancel-order'
+import { IGetOrdersResponse } from '@/api/get-orders'
 import { OrderStatus } from '@/components/order-status'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger } from '@/components/ui/dialog'
@@ -20,7 +23,37 @@ export interface IOrderTableRowProps {
 }
 
 export function OrderTableRow({ order }: IOrderTableRowProps) {
+  const queryClient = useQueryClient()
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
+
+  const isDisabledCancelButton = !['pending', 'processing'].includes(
+    order.status,
+  )
+
+  const { mutateAsync: cancelOrderFn } = useMutation({
+    mutationFn: cancelOrder,
+    async onSuccess(_data, { orderId }) {
+      const ordersListCache = queryClient.getQueriesData<IGetOrdersResponse>({
+        queryKey: ['orders'],
+      })
+
+      ordersListCache.forEach(([cacheKey, cacheData]) => {
+        if (!cacheData) {
+          return
+        }
+
+        queryClient.setQueryData<IGetOrdersResponse>(cacheKey, {
+          ...cacheData,
+          orders: cacheData.orders.map((order) => {
+            if (order.orderId === orderId) {
+              return { ...order, status: 'canceled' }
+            }
+            return order
+          }),
+        })
+      })
+    },
+  })
 
   return (
     <TableRow>
@@ -62,7 +95,12 @@ export function OrderTableRow({ order }: IOrderTableRowProps) {
         </Button>
       </TableCell>
       <TableCell>
-        <Button variant="ghost" size="xs">
+        <Button
+          disabled={isDisabledCancelButton}
+          variant="ghost"
+          size="xs"
+          onClick={() => cancelOrderFn({ orderId: order.orderId })}
+        >
           <X className="mr-2 h-3 w-3" />
           Cancelar
         </Button>
