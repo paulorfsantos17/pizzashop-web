@@ -138,7 +138,7 @@ export function OrderTableRow({ order }: IOrderTableRowProps) {
             variant="outline"
             size="xs"
             onClick={() => dispatchOrderFn({ orderId })}
-            disabled={isDeliveringOrder}
+            disabled={isDispatchingOrder}
           >
             <ArrowRight className="mr-2 h-3 w-3" />
             Em Entrega
