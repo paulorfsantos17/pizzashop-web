@@ -45,7 +45,7 @@ describe('Pagination', async () => {
     expect(onPageChangeCallback).toHaveBeenCalledWith(1)
   })
 
-  it('should be able to navigate to the first page', async () => {
+  it('should be able to navigate to the previous page', async () => {
     const wrapper = render(
       <Pagination
         pageIndex={8}
@@ -74,11 +74,11 @@ describe('Pagination', async () => {
       />,
     )
 
-    const nextPageButton = wrapper.getByRole('button', {
+    const FirstPageButton = wrapper.getByRole('button', {
       name: 'Primeira página',
     })
 
-    await user.click(nextPageButton)
+    await user.click(FirstPageButton)
 
     expect(onPageChangeCallback).toHaveBeenCalledWith(0)
   })
