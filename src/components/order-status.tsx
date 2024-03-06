@@ -10,7 +10,7 @@ interface IOrderStatusProps {
 }
 
 const orderStatusMap: Record<IOrderStatus, string> = {
-  pending: 'Pedente',
+  pending: 'Pendente',
   canceled: 'Cancelado',
   delivered: 'Entregue',
   delivering: 'Em entrega',
@@ -28,7 +28,7 @@ const orderStatusStyleMap: Record<IOrderStatus, string> = {
 export function OrderStatus({ status }: IOrderStatusProps) {
   return (
     <div className="flex items-center gap-2">
-      <span className={orderStatusStyleMap[status]}></span>
+      <span data-testid="badge" className={orderStatusStyleMap[status]}></span>
       <span className="font-medium text-muted-foreground">
         {orderStatusMap[status]}
       </span>

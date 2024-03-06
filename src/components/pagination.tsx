@@ -22,8 +22,8 @@ export function Pagination({
 }: IPaginationProps) {
   const pages = Math.ceil(totalCount / perPage) || 1
 
-  const isFirstPage = pageIndex === 0
-  const isLastPage = pages <= pageIndex + 1
+  const isFirstPage = pages <= pageIndex + 1
+  const isLastPage = pages <= pageIndex - 1
 
   return (
     <div className="flex items-center justify-between">
@@ -45,7 +45,7 @@ export function Pagination({
             <span className="sr-only">Primeira página</span>
           </Button>
           <Button
-            onClick={() => onPageChange(pageIndex - 1)}
+            onClick={() => onPageChange(pageIndex + 1)}
             variant="outline"
             className="h-8 w-8  p-0"
             disabled={isFirstPage}
