@@ -1,14 +1,18 @@
 import { http, HttpResponse } from 'msw'
 
-import { IGetMonthRevenueResponse } from '../get-month-revenue'
+import { IGetProfileResponse } from '../get-profile'
 
-export const getMonthRevenueMock = http.get<
-  never,
-  never,
-  IGetMonthRevenueResponse
->('/metrics/month-revenue', () => {
-  return HttpResponse.json({
-    diffFromLastMonth: 10,
-    revenue: 3000,
-  })
-})
+export const getProfileMock = http.get<never, never, IGetProfileResponse>(
+  '/me',
+  () => {
+    return HttpResponse.json({
+      id: 'custom-user-id',
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      phone: '(99)9999999099',
+      createdAt: new Date(),
+      role: 'manager',
+      updatedAt: null,
+    })
+  },
+)
