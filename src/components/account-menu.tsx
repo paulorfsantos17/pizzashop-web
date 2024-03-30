@@ -4,7 +4,7 @@ import { Building, ChevronDown, LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { getManagerRestaurant } from '@/api/get-manager-restutant'
+import { getManagerRestaurant } from '@/api/get-manager-restaurant'
 import { getProfile } from '@/api/get-profile'
 import { signOut } from '@/api/sign-out'
 
