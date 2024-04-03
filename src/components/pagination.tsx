@@ -20,10 +20,11 @@ export function Pagination({
   totalCount,
   onPageChange,
 }: IPaginationProps) {
+  console.log('🚀 ~ pageIndex:', pageIndex)
   const pages = Math.ceil(totalCount / perPage) || 1
 
-  const isFirstPage = pages <= pageIndex + 1
-  const isLastPage = pages <= pageIndex - 1
+  const isFirstPage = pageIndex === 0
+  const isLastPage = pages === 1 + pageIndex
 
   return (
     <div className="flex items-center justify-between">
@@ -42,16 +43,16 @@ export function Pagination({
             disabled={isFirstPage}
           >
             <ChevronsLeft className="h-4 w-4" />
-            <span className="sr-only">Primeira página</span>
+            <span className="sr-only">Primeira Página</span>
           </Button>
           <Button
-            onClick={() => onPageChange(pageIndex + 1)}
+            onClick={() => onPageChange(pageIndex - 1)}
             variant="outline"
             className="h-8 w-8  p-0"
             disabled={isFirstPage}
           >
             <ChevronLeft className="h-4 w-4" />
-            <span className="sr-only">Próxima página</span>
+            <span className="sr-only">Página anterior</span>
           </Button>
           <Button
             onClick={() => onPageChange(pageIndex + 1)}
@@ -60,7 +61,7 @@ export function Pagination({
             disabled={isLastPage}
           >
             <ChevronRight className="h-4 w-4" />
-            <span className="sr-only">Página anterior</span>
+            <span className="sr-only"> Próxima página</span>
           </Button>
 
           <Button
