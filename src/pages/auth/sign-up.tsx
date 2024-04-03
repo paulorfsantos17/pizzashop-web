@@ -94,7 +94,7 @@ export function SignUp() {
               className="w-full disabled:opacity-50 "
               disabled={isSubmitting}
             >
-              Acessar painel
+              Finalizar Cadastro
             </Button>
 
             <p className="px-6 text-center text-sm leading-relaxed text-muted-foreground">
